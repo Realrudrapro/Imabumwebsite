@@ -1,6 +1,6 @@
 function search() {
   const query = document.getElementById('q').value;
-
+  
   fetch(`/search?q=${encodeURIComponent(query)}`)
     .then(res => res.json())
     .then(data => {
@@ -9,29 +9,33 @@ function search() {
 
       data.forEach(item => {
         const linkElement = document.createElement('a');
-        
-        let isValidUrl = false;
+        let safeLink = 'javascript:void(0)'; 
+
         try {
-          const parsedUrl = new URL(item.link, window.location.href);
-          isValidUrl = parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
+          const parsedUrl = new URL(item.link, window.location.origin);
+          
+          const isHttp = parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
+          const isSameOrigin = parsedUrl.origin === window.location.origin;
+
+          if (isHttp && isSameOrigin) {
+            safeLink = parsedUrl.href;
+          }
         } catch (e) {
-          isValidUrl = item.link.startsWith('/');
+         
+          if (item.link.startsWith('/') && !item.link.startsWith('//')) {
+            safeLink = item.link;
+          }
         }
 
-       
-        if (isValidUrl) {
-          linkElement.href = item.link;
-        } else {
-          linkElement.href = 'javascript:void(0)';
-        }
-
-        linkElement.textContent = item.title;
-        resultsContainer.appendChild(linkElement);
+        linkElement.href = safeLink;
         
+        linkElement.textContent = item.title; 
+        
+        resultsContainer.appendChild(linkElement);
         resultsContainer.appendChild(document.createElement('br'));
       });
     })
     .catch(err => {
-      console.error(err);
+      console.error('Search failed:', err);
     });
 }
