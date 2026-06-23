@@ -4,42 +4,5 @@
 <div id="results"></div>
 
 <script>
-function search() {
-  const query = document.getElementById('q').value;
-
-  fetch(`/search?q=${encodeURIComponent(query)}`)
-    .then(res => res.json())
-    .then(data => {
-      const resultsContainer = document.getElementById('results');
-      resultsContainer.textContent = ''; 
-
-      data.forEach(item => {
-        const linkElement = document.createElement('a');
-        
-        let isValidUrl = false;
-        try {
-          const parsedUrl = new URL(item.link, window.location.href);
-          isValidUrl = parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
-        } catch (e) {
-          isValidUrl = item.link.startsWith('/');
-        }
-
-       
-        if (isValidUrl) {
-          linkElement.href = item.link;
-        } else {
-          linkElement.href = 'javascript:void(0)';
-        }
-
-        linkElement.textContent = item.title;
-        resultsContainer.appendChild(linkElement);
-        
-        resultsContainer.appendChild(document.createElement('br'));
-      });
-    })
-    .catch(err => {
-      console.error(err);
-    });
-}
 
 </script>
