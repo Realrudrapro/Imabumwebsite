@@ -1,8 +1,35 @@
-<!DOCTYPE html>
-<html>
-<body>
-<button onclick="location.href='https://duckduckgo.com/?q=https://discord.com/'">
-    discord
-</button>
-</body>
-</html>
+<input id="q" type="text" placeholder="Search...">
+<button onclick="search()">Search</button>
+
+<div id="results"></div>
+
+<script>
+function search() {
+  const query = document.getElementById("q").value;
+
+  fetch("/search?q=" + encodeURIComponent(query))
+    .then(res => res.json())
+    .then(data => {
+      const resultsContainer = document.getElementById("results");
+      
+      resultsContainer.textContent = ""; 
+
+      data.forEach(item => {
+        const linkElement = document.createElement("a");
+        
+        const isSafeUrl = item.link.startsWith('http://') || 
+                          item.link.startsWith('https://') || 
+                          item.link.startsWith('/');
+                          
+        linkElement.href = isSafeUrl ? item.link : "#";
+        linkElement.textContent = item.title; 
+
+        resultsContainer.appendChild(linkElement);
+        resultsContainer.appendChild(document.createElement("br"));
+      });
+    })
+    .catch(err => {
+      console.error(err);
+    });
+}
+</script>
